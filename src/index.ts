@@ -26,6 +26,33 @@ const loader = new DirectoryLoader("./docs", {
 
 // See contents of docs that are being being loaded
 const docs = await loader.load();
-console.log(docs);
 const csvContent = docs.map((doc: Document) => doc.pageContent);
-console.log(`Page Content ---> ${csvContent}`);
+
+const askModel = async (question: string) => {
+	const model = new OpenAI({ openAIApiKey: process.env.OPENAI_API_KEY });
+	let vectorStore;
+
+	const splitText = new RecursiveCharacterTextSplitter({
+		chunkSize: 1000,
+		chunkOverlap: 900,
+	});
+
+	const splitDocs = await splitText.createDocuments(csvContent);
+
+	vectorStore = await HNSWLib.fromDocuments(
+		splitDocs,
+		new OpenAIEmbeddings()
+	);
+
+	await vectorStore.save("store");
+	console.log(`Vector store created`);
+	// }
+
+	// RetrievalQAChain
+	const chain = RetrievalQAChain.fromLLM(model, vectorStore.asRetriever());
+	console.log("Querying...");
+	const res = await chain.call({ query: question });
+	console.log(res);
+};
+
+askModel("How many are single?");
