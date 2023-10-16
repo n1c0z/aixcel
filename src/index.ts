@@ -24,3 +24,8 @@ const loader = new DirectoryLoader("./docs", {
 	".pdf": (path) => new PDFLoader(path),
 });
 
+// See contents of docs that are being being loaded
+const docs = await loader.load();
+console.log(docs);
+const csvContent = docs.map((doc: Document) => doc.pageContent);
+console.log(`Page Content ---> ${csvContent}`);
