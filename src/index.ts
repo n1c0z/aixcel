@@ -55,4 +55,4 @@ const askModel = async (question: string) => {
 	console.log(res);
 };
 
-askModel("How many are single?");
+askModel("What are the columns in this dataset?");
